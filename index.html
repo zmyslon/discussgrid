@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GridTM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <img src="GridTM.png" alt="GridTM" class="center">
+    
+    <div class="right">
+        <button>
+            <a href="http://grid.info.pl">Back</a>
+        </button>
+    </div>
+
+    <textarea id="msg" placeholder="TIP: You can resize the window by dragging the bottom-right corner!" class="center"></textarea>
+    <button id="send" class="center">Send!</button>
+    <div id="discuss">
+        <h1 class="center">Loading</h1>
+    </div>
+    <div class="stick">
+    <h5>© Copyright 2026 GridTM<br>
+        Contact us: zmyslonkowo15@gmail.com</h5>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+</body>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue,push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyABMya-5GywOY9YQ_2-HT1mMn5U5tN2uaM",                  // Replace with your actual API key
+  authDomain: "gridiscuss.firebaseapp.com",
+  databaseURL: "https://gridiscuss-default-rtdb.firebaseio.com",
+  projectId: "gridiscuss",
+  storageBucket: "gridiscuss.firebasestorage.app",
+  messagingSenderId: "9725644646",
+  appId: "1:9725644646:web:699914ce415cc1bf1102a7"                     // Replace with your actual App ID
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 3. Listen to the database
+onValue(ref(db, "/"), snapshot => {
+    const data = snapshot.val();
+    let html = "";
+
+    if (data) {
+        for (let id in data) {
+            html += `<hr>`;
+            html += `<p>${data[id].text}</p>`;
+        }
+        html += `<hr>`;
+        html += `<h2 style="color: red;" class="center">END</h2>`;
+    } else {
+        html = `<p class="center">Nothing</p>`;
+    }
+
+    document.getElementById("discuss").innerHTML = html;
+});
+    function send() {
+        const textarea = document.getElementById("msg");
+        
+        const messageText = textarea.value;
+        if(!messageText)return;
+        if(messageText.includes(">")||messageText.includes("<")){textarea.value="You cant input > or < characters!";return;}
+
+            push(ref(db, "/"), {
+                text: messageText
+            })
+            .then(() => {
+                textarea.value = ""; // Clear message box
+            })
+            .catch((error) => console.error("Database Error:", error));
+        }
+    document.getElementById("send").addEventListener("click", send);
+</script>
+</html>
